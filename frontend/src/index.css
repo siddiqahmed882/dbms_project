@@ -1,0 +1,8 @@
+main {
+	min-height: 80vh;
+}
+
+.rating {
+	display: flex;
+	gap: 0.5rem;
+}
