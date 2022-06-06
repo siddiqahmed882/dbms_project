@@ -4,7 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const corsOptions = require('./config/corsOptions');
 const cookieParser = require('cookie-parser');
-const credientials = require('./middleware/credientials');
+const credentials = require('./middleware/credientials');
 const verifyJWT = require('./middleware/verifyJWT');
 const fileUpload = require('express-fileupload');
 
@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3500;
 const app = express();
 
 // handle options credentials check before CORS and fetch cookies credential requirements
-app.use(credientials);
+app.use(credentials);
 
 // corss origin resource sharing
 app.use(cors(corsOptions));
@@ -40,9 +40,13 @@ app.use('/api/register', require('./routes/register'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/refresh', require('./routes/refresh'));
 app.use('/api/logout', require('./routes/logout'));
+app.use('/api/user', require('./routes/user'));
 
-// verify jwt for protected routes
-app.use(verifyJWT);
+// upload file
+app.use('/api/uploadImage', require('./routes/uploadImage'));
+
+// order routes
+app.use('/api/orders', require('./routes/orders'));
 
 
 

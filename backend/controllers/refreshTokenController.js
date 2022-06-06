@@ -31,7 +31,7 @@ const handleRefreshToken = async (req, res) => {
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET,
       (err, decoded) => {
-        if (err || foundUser.user_email !== decoded.userEmail) res.sendStatus(403); // forbidden
+        if (err || foundUser.user_email !== decoded.userEmail) return res.sendStatus(403); // forbidden
         const accessToken = jwt.sign(
           {
             UserInfo: {
@@ -42,7 +42,7 @@ const handleRefreshToken = async (req, res) => {
           process.env.ACCESS_TOKEN_SECRET,
           { expiresIn: '900s' } // 15 min
         );
-        res.json({ "success": `User ${foundUser.user_name} is authorized`, accessToken });
+        return res.json({ "success": `User ${foundUser.user_name} is authorized`, accessToken });
       });
   } catch (err) {
 

@@ -12,7 +12,8 @@ CREATE TABLE users(
     user_password VARCHAR(255) NOT NULL,
     user_tel VARCHAR(11) NOT NULL CHECK(LENGTH(user_tel) = 11),
     user_address VARCHAR(255) NOT NULL,
-    user_type VARCHAR(10) DEFAULT 'cust`omer',
+    user_avatar VARCHAR(255) NOT NULL,
+    user_type VARCHAR(10) DEFAULT 'customer',
     refresh_token VARCHAR(255)
 );
 
@@ -59,7 +60,39 @@ CREATE TABLE reviews(
     PRIMARY KEY(user_id, product_id)
 );
 
+-- create users table
+CREATE TABLE orders(
+    order_id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    order_date_time TIMESTAMP NOT NULL DEFAULT NOW(),
+    order_status VARCHAR(10) NOT NULL DEFAULT 'pending',
+    order_total_price INT NOT NULL CHECK(order_total_price >= 0),
+    order_shipping_address VARCHAR(255) NOT NULL,
+    CONSTRAINT fk_user 
+        FOREIGN KEY(user_id) 
+            REFERENCES users(user_id) 
+                ON DELETE CASCADE
+);
+
+-- create order items table
+CREATE TABLE order_item(
+    order_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    order_item_qty INT NOT NULL CHECK(order_item_qty > 0),
+    CONSTRAINT fk_order 
+        FOREIGN KEY(order_id) 
+            REFERENCES orders(order_id) 
+                ON DELETE CASCADE,
+    CONSTRAINT fk_product 
+        FOREIGN KEY(product_id) 
+            REFERENCES products(product_id) 
+                ON DELETE CASCADE,
+    PRIMARY KEY(order_id, product_id);
+)
 
 
 -- get all users
 SELECT * FROM users;
+
+-- get order
+SELECT * FROM orders LEFT JOIN order_item USING (order_id) WHERE order_id = 34;

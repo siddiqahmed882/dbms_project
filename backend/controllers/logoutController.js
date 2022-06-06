@@ -21,7 +21,6 @@ const handleLogout = async (req, res) => {
     }
 
     const foundUser = found.rows[0];
-    console.log(foundUser);
 
     // Delete the refreshToken in database
     await db.query(
@@ -29,12 +28,12 @@ const handleLogout = async (req, res) => {
       [null, foundUser.user_id]
     );
 
-    res.clearCookie('jwt', { httpOnly: true });
-    // sameSite: 'None', secure: true 
+    res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true });
+
     return res.sendStatus(204); // No content to send
 
   } catch (err) {
-    res.sendStatus(500);
+    return res.sendStatus(500);
   }
 };
 

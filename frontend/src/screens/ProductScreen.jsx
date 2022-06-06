@@ -1,30 +1,37 @@
 import { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 
-import axios from '../axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { listProductDetails } from '../actions/productActions';
 
+import Loader from '../components/Loader';
+import Message from '../components/Message';
 import Ratings from '../components/Ratings';
 
-import { Row, Col, Image, ListGroup, Card, Button } from 'react-bootstrap';
+import { Row, Col, Image, ListGroup, Card, Button, Form } from 'react-bootstrap';
 
 function ProductScreen() {
-	const [product, setProduct] = useState({});
-
+	const [qty, setQty] = useState(1);
+	const navigate = useNavigate();
 	const { id } = useParams();
 
-	useEffect(() => {
-		const getProduct = async () => {
-			const res = await axios.get(`/api/products/${id}`);
-			setProduct(res.data);
-		};
-		getProduct();
-	}, [id]);
+	const dispatch = useDispatch();
+	const productDetails = useSelector((state) => state.productDetails);
+	const { loading, error, product } = productDetails;
 
-	return (
-		<>
-			<Link className="btn btn-light my-3" to="/">
-				Go back
-			</Link>
+	useEffect(() => {
+		dispatch(listProductDetails(id));
+	}, [dispatch, id]);
+
+	const handleAddToCart = () => {
+		navigate(`/cart/${id}?qty=${qty}`);
+	};
+
+	let content;
+	if (loading) content = <Loader />;
+	else if (!loading && error) content = <Message variant={'danger'}>{error}</Message>;
+	else
+		content = (
 			<Row>
 				<Col md={6}>
 					<Image
@@ -66,8 +73,29 @@ function ProductScreen() {
 									</Col>
 								</Row>
 							</ListGroup.Item>
+							{product.product_count_in_stock > 0 && (
+								<ListGroup.Item>
+									<Row>
+										<Col>Quantity:</Col>
+										<Col>
+											<Form.Control
+												as="select"
+												value={qty}
+												onChange={(e) => setQty(e.target.value)}
+											>
+												{[...Array(product.product_count_in_stock).keys()].map((x) => (
+													<option key={x + 1} value={x + 1}>
+														{x + 1}
+													</option>
+												))}
+											</Form.Control>
+										</Col>
+									</Row>
+								</ListGroup.Item>
+							)}
 							<ListGroup.Item>
 								<Button
+									onClick={handleAddToCart}
 									className="btn-block"
 									type="button"
 									disabled={product.product_count_in_stock === 0}
@@ -79,6 +107,14 @@ function ProductScreen() {
 					</Card>
 				</Col>
 			</Row>
+		);
+
+	return (
+		<>
+			<Link className="btn btn-light my-3" to="/">
+				Go back
+			</Link>
+			{content}
 		</>
 	);
 }

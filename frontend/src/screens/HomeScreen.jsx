@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { listProducts } from '../actions/productActions';
+import Message from '../components/Message';
+import Loader from '../components/Loader';
 
 import Product from '../components/Product';
 
@@ -18,9 +20,9 @@ function HomeScreen() {
 
 	let content;
 	if (loading) {
-		content = <p>Loading....</p>;
+		content = <Loader />;
 	} else if (!loading && error) {
-		content = <p>{error}</p>;
+		content = <Message variant={'danger'}>{error}</Message>;
 	} else {
 		content = (
 			<Row>
