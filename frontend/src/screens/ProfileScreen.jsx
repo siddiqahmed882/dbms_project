@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserDetails, updateUserProfile } from '../actions/userActions';
-// import { listMyOrders } from '../actions/orderActions';
+import { listMyOrders, resetOrderDetails } from '../actions/orderActions';
 
 import { USER_UPDATE_PROFILE_RESET } from '../constants/userConstants';
 
@@ -33,8 +33,8 @@ const ProfileScreen = () => {
 	const userUpdateProfile = useSelector((state) => state.userUpdateProfile);
 	const { success } = userUpdateProfile;
 
-	// const orderListMy = useSelector((state) => state.orderListMy);
-	// const { loading: loadingOrders, error: errorOrders, orders } = orderListMy;
+	const orderListMy = useSelector((state) => state.orderListMy);
+	const { loading: loadingOrders, error: errorOrders, orders } = orderListMy;
 
 	useEffect(() => {
 		if (!userInfo) {
@@ -43,7 +43,7 @@ const ProfileScreen = () => {
 			if (!user || !user.name || success) {
 				dispatch({ type: USER_UPDATE_PROFILE_RESET });
 				dispatch(getUserDetails());
-				// dispatch(listMyOrders());
+				dispatch(listMyOrders());
 			} else {
 				setName(user.name);
 				setEmail(user.email);
@@ -192,7 +192,7 @@ const ProfileScreen = () => {
 					</>
 				)}
 			</Col>
-			{/* <Col md={9}>
+			<Col md={9}>
 				<h2>My Orders</h2>
 				{loadingOrders ? (
 					<Loader />
@@ -205,7 +205,6 @@ const ProfileScreen = () => {
 								<th>ID</th>
 								<th>DATE</th>
 								<th>TOTAL</th>
-								<th>PAID</th>
 								<th>DELIVERED</th>
 								<th></th>
 							</tr>
@@ -213,25 +212,18 @@ const ProfileScreen = () => {
 						<tbody>
 							{orders.map((order) => (
 								<tr key={order._id}>
-									<td>{order._id}</td>
+									<td>{order.orderId}</td>
 									<td>{order.createdAt.substring(0, 10)}</td>
-									<td>{order.totalPrice}</td>
-									<td>
-										{order.isPaid ? (
-											order.paidAt.substring(0, 10)
-										) : (
-											<i className="fas fa-times" style={{ color: 'red' }}></i>
-										)}
-									</td>
+									<td>{`Rs. ${order.totalPrice}`}</td>
 									<td>
 										{order.isDelivered ? (
-											order.deliveredAt.substring(0, 10)
+											<span style={{ color: 'green' }}>{'DELIVERED'}</span>
 										) : (
-											<i className="fas fa-times" style={{ color: 'red' }}></i>
+											<span style={{ color: 'red' }}>{'PENDING'}</span>
 										)}
 									</td>
 									<td>
-										<LinkContainer to={`/order/${order._id}`}>
+										<LinkContainer to={`/order/${order.orderId}`}>
 											<Button className="btn-sm" variant="light">
 												Details
 											</Button>
@@ -242,7 +234,7 @@ const ProfileScreen = () => {
 						</tbody>
 					</Table>
 				)}
-			</Col> */}
+			</Col>
 		</Row>
 	);
 };

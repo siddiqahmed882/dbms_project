@@ -6,7 +6,6 @@ const getUserProfile = async (req, res) => {
   const { user_email } = req;
   const result = await db.query('SELECT * FROM users WHERE user_email = $1', [user_email]);
   const user = result.rows[0];
-  console.log(user);
   return res.json({
     id: user.user_id,
     name: user.user_name,

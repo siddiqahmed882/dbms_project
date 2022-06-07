@@ -7,6 +7,7 @@ import {
   ORDER_DETAILS_FAIL,
   ORDER_DETAILS_SUCCESS,
   ORDER_DETAILS_REQUEST,
+  ORDER_DETAILS_RESET,
   ORDER_PAY_FAIL,
   ORDER_PAY_SUCCESS,
   ORDER_PAY_REQUEST,
@@ -206,12 +207,14 @@ export const listMyOrders = () => async (dispatch, getState) => {
     };
 
     const { data } = await axios.get(`/api/orders/myorders`, config);
+    console.log(data);
 
     dispatch({
       type: ORDER_LIST_MY_SUCCESS,
-      payload: data,
+      payload: data.orders,
     });
   } catch (error) {
+    console.log(error);
     const message =
       error.response && error.response.data.message
         ? error.response.data.message
@@ -261,4 +264,10 @@ export const listOrders = () => async (dispatch, getState) => {
       payload: message,
     });
   }
+};
+
+export const resetOrderDetails = () => async (dispatch, getState) => {
+  dispatch({
+    type: ORDER_DETAILS_RESET,
+  });
 };

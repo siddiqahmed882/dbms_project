@@ -43,17 +43,52 @@ const handleNewOrder = async (req, res) => {
   }
 };
 
+const getMyOrders = async (req, res) => {
+  const { user_email } = req;
+  try {
+    // getting the userId from database
+    const userId = (await db.query('SELECT user_id FROM users WHERE user_email = $1', [user_email])).rows[0].user_id;
+    const result = await db.query('SELECT * FROM orders WHERE user_id = $1', [userId]);
+    const orders = result.rows;
+    const response = {
+      orders: orders.map((order) => ({
+        orderId: order.order_id,
+        totalPrice: order.order_total_price,
+        shippingAddress: order.order_shipping_address,
+        createdAt: order.order_date_time,
+        isDelivered: order.order_status === 'delivered',
+      })),
+    };
+    return res.json(response);
+  } catch (error) {
+    console.log(error.message);
+    return res.sendStatus(500);
+  }
+};
+
 const getOrderById = async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await db.query('SELECT * FROM orders WHERE order_id = $1', [id]);
-    const order = result.rows[0];
+    const order = (await db.query('SELECT * FROM orders WHERE order_id = $1', [id])).rows[0];
+
+    // grab user and modify it for frontend
+    let user = (await db.query('SELECT * FROM users WHERE user_id = $1', [order.user_id])).rows[0];
+    user = {
+      name: user.user_name,
+      email: user.user_email,
+      address: user.user_address,
+    };
+
+    const orderItems = await getOrderItems(id);
+
     return res.json({
       id: order.order_id,
-      userId: order.user_id,
       totalPrice: order.order_total_price,
-      orderItems: await getOrderItems(order.order_id),
-
+      isDelivered: order.order_status === 'delivered',
+      deliveredAt: order.order_delivered_at,
+      createdAt: order.order_date_time,
+      user,
+      orderItems,
     });
   } catch (error) {
     console.log(error);
@@ -62,11 +97,19 @@ const getOrderById = async (req, res) => {
 };
 
 const getOrderItems = async (orderId) => {
-  const result = await db.query('SELECT * FROM order_details WHERE order_id = $1', [orderId]);
-  const orderItems = result.rows;
+  const result = (await db.query('SELECT * FROM order_item LEFT JOIN products using (product_id) WHERE order_id = $1', [orderId])).rows;
+  const orderItems = result.map((item) => (
+    {
+      id: item.product_id,
+      image: item.product_image,
+      name: item.product_name,
+      qty: item.order_item_qty,
+      price: item.product_price,
+    }
+  ));
   return orderItems;
 };
 
 
 
-module.exports = { handleNewOrder };
+module.exports = { handleNewOrder, getMyOrders, getOrderById };

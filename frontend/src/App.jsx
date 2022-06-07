@@ -9,6 +9,7 @@ import RegisterScreen from './screens/RegisterScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import ShippingScreen from './screens/ShippingScreen';
 import PlaceOrderScreen from './screens/PlaceOrderScreen';
+import OrderScreen from './screens/OrderScreen';
 
 function App() {
 	return (
@@ -25,6 +26,7 @@ function App() {
 				</Route>
 				<Route path="shipping" element={<ShippingScreen />} />
 				<Route path="placeorder" element={<PlaceOrderScreen />} />
+				<Route path="order/:orderId" element={<OrderScreen />} />
 			</Route>
 		</Routes>
 	);

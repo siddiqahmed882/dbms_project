@@ -66,6 +66,7 @@ CREATE TABLE orders(
     user_id BIGINT NOT NULL,
     order_date_time TIMESTAMP NOT NULL DEFAULT NOW(),
     order_status VARCHAR(10) NOT NULL DEFAULT 'pending',
+    order_delivered_at TIMESTAMP,
     order_total_price INT NOT NULL CHECK(order_total_price >= 0),
     order_shipping_address VARCHAR(255) NOT NULL,
     CONSTRAINT fk_user 
